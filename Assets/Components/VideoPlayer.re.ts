@@ -17,12 +17,12 @@ export default class VideoPlayer extends RE.Component {
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
     texture.format = THREE.RGBAFormat;
-    texture.crossOrigin = 'anonymous';
 
     const material =  new THREE.MeshBasicMaterial({ map: texture })
 
     video.load();
 
+    /* @ts-ignore */
     this.object3d.material = material
   }
 }

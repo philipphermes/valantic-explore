@@ -2160,6 +2160,7 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     mapChilds.forEach((child) => {
       const box3 = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
       box3.setFromObject(child);
+      console.log(child.boundingBox);
       this.objectsToCollide.push(box3);
     });
     this.setPlayerBB();
@@ -2179,15 +2180,19 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     this.objectsToCollide.forEach((objBB) => {
       if (objBB.intersectsBox(this.playerColliderBB[0])) {
         collided.front = true;
+        console.log("front", objBB);
       }
       if (objBB.intersectsBox(this.playerColliderBB[1])) {
         collided.back = true;
+        console.log("back", objBB);
       }
       if (objBB.intersectsBox(this.playerColliderBB[2])) {
         collided.right = true;
+        console.log("right", objBB);
       }
       if (objBB.intersectsBox(this.playerColliderBB[3])) {
         collided.left = true;
+        console.log("left", objBB);
       }
     });
     const movementY = this.player.getWorldDirection(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3()).normalize();
@@ -2533,7 +2538,6 @@ class VideoPlayer extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     texture.minFilter = three__WEBPACK_IMPORTED_MODULE_1__.LinearFilter;
     texture.magFilter = three__WEBPACK_IMPORTED_MODULE_1__.LinearFilter;
     texture.format = three__WEBPACK_IMPORTED_MODULE_1__.RGBAFormat;
-    texture.crossOrigin = "anonymous";
     const material = new three__WEBPACK_IMPORTED_MODULE_1__.MeshBasicMaterial({ map: texture });
     video.load();
     this.object3d.material = material;

@@ -33,9 +33,10 @@ export default class FPController extends RE.Component {
         //Create BBs for Map Objects
         const mapChilds = this.map.children
         mapChilds.forEach(child => {
-            const box3 = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3())
+            const box3: THREE.Box3 = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3())
             box3.setFromObject(child)
 
+            console.log(child.boundingBox)
             this.objectsToCollide.push(box3)
         })
 
@@ -62,18 +63,22 @@ export default class FPController extends RE.Component {
         this.objectsToCollide.forEach(objBB => {
             if (objBB.intersectsBox(this.playerColliderBB[0])) {
                 collided.front = true
+                console.log("front", objBB)
             }
 
             if (objBB.intersectsBox(this.playerColliderBB[1])) {
                 collided.back = true
+                console.log("back", objBB)
             }
 
             if (objBB.intersectsBox(this.playerColliderBB[2])) {
                 collided.right = true
+                console.log("right", objBB)
             }
 
             if (objBB.intersectsBox(this.playerColliderBB[3])) {
                 collided.left = true
+                console.log("left", objBB)
             }
         })
 

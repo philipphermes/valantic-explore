@@ -150,6 +150,7 @@ export default class GameUI extends RE.Component {
     const videoElements = document.getElementsByClassName('videoPlayer');
     for (let key in videoElements) {
       try {
+        /* @ts-ignore */
         videoElements[key].play()
       } catch (e) {
         //Do nothing :D
