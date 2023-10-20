@@ -8,15 +8,16 @@ export default class GameUI extends RE.Component {
   private useTouch: boolean = false;
 
   start() {
+    window.localStorage.setItem("play", "false");
+
     AudioContext["getContext"]().suspend();
 
     this.uiContainer = document.getElementById("rogue-ui") as HTMLElement;
 
     const myCss = document.createElement("style");
-    //myCss.innerHTML = "@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap');";
 
     this.uiContainer.appendChild(myCss);
-    this.uiContainer.style.fontFamily = "Black Ops One";
+    this.uiContainer.style.fontFamily = "Arial";
 
     this.createLoadingUI();
 
@@ -35,12 +36,6 @@ export default class GameUI extends RE.Component {
       this.createStartGameUI();
     }
   }
-
-  afterUpdate() {
-
-  }
-
-
 
   private openFullscreen() {
     if (RE.isDev()) return;
@@ -96,19 +91,29 @@ export default class GameUI extends RE.Component {
     this.startGameUI.style.margin = "auto";
     this.startGameUI.style.textAlign = "center";
     this.startGameUI.style.height = "100%";
+    this.startGameUI.style.width = "100%"
+    this.startGameUI.style.backdropFilter = "blur(10px)";
     this.startGameUI.style.display = "flex";
     this.startGameUI.style.flexDirection = "column";
     this.startGameUI.style.justifyContent = "center";
 
     const gameTitle = document.createElement("h1");
-    gameTitle.textContent = "Test";
-    gameTitle.style.color = "crimson";
+    gameTitle.textContent = "Valantic City";
+    gameTitle.style.color = "#FF4B4B";
 
     const playBtn = document.createElement("h2");
     playBtn.style.cursor = "pointer";
-    playBtn.style.color = "black";
+    playBtn.style.color = "#F99E49";
     playBtn.style.position = "relative";
-    playBtn.textContent = "Play!";
+    playBtn.textContent = "Start exploring!";
+
+    playBtn.addEventListener('mouseenter', () => {
+      playBtn.style.color = "#FF744F"
+    })
+
+    playBtn.addEventListener('mouseleave', () => {
+      playBtn.style.color = "#F99E49"
+    })
 
     playBtn.ontouchend = () => {
       this.startGameUI.style.display = "none";
@@ -132,18 +137,24 @@ export default class GameUI extends RE.Component {
   }
 
   private startGame() {
-
-
-
-
     if (this.useTouch) {
-
       return;
     }
 
+    window.localStorage.setItem("play", "true");
 
-
+    //Hide mouse
     RE.Input.mouse.lock();
+
+    //Play videos
+    const videoElements = document.getElementsByClassName('videoPlayer');
+    for (let key in videoElements) {
+      try {
+        videoElements[key].play()
+      } catch (e) {
+        //Do nothing :D
+      }
+    }
   }
 }
 

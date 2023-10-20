@@ -12,7 +12,7 @@
 return (self["webpackChunk_name_"] = self["webpackChunk_name_"] || []).push([["rogue-editor-user-scripts"],{},
 /******/ __webpack_require__ => { // webpackRuntimeModules
 /******/ var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-/******/ var __webpack_exports__ = (__webpack_exec__("./Assets/Components/FPController.re.ts"), __webpack_exec__("./Assets/Components/GameUI.re.ts"), __webpack_exec__("./Assets/Components/PostProcessing.re.ts"));
+/******/ var __webpack_exports__ = (__webpack_exec__("./Assets/Components/FPController.re.ts"), __webpack_exec__("./Assets/Components/GameUI.re.ts"), __webpack_exec__("./Assets/Components/PostProcessing.re.ts"), __webpack_exec__("./Assets/Components/VideoPlayer.re.ts"));
 /******/ return __webpack_exports__;
 /******/ }
 ]);
