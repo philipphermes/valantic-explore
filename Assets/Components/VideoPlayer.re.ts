@@ -3,12 +3,15 @@ import * as THREE from 'three'
 
 export default class VideoPlayer extends RE.Component {
   @RE.props.text() videoUrl: string;
+  @RE.props.num(0, 1) volume: number = 0.25;
 
   start() {
     const video = document.createElement( 'video' );
     video.src = this.videoUrl
     video.classList.add('videoPlayer')
     video.loop = true
+    video.volume = this.volume
+    video.playsInline = true
     document.body.appendChild(video)
 
     const texture = new THREE.VideoTexture(video);

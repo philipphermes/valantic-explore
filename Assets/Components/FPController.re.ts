@@ -1,5 +1,6 @@
 import * as RE from 'rogue-engine';
 import * as THREE from 'three'
+import GameUI from './GameUI.re';
 
 export default class FPController extends RE.Component {
     //Movement Settings
@@ -20,6 +21,15 @@ export default class FPController extends RE.Component {
     player: any
     playerColliderBB: THREE.Box3[] = []
     objectsToCollide: THREE.Box3[] = []
+
+    gameUI: GameUI
+
+    isTouch: Array<boolean> = [
+        false, //Up
+        false, //Down
+        false, //Left
+        false, //Right
+    ]
 
     start(): void {
         this.player = this.object3d //Player
@@ -42,12 +52,60 @@ export default class FPController extends RE.Component {
 
         //Set player BBs
         this.setPlayerBB()
+
+        const gameUi = RE.getComponent(GameUI, this.object3d)
+
+        if (gameUi) {
+            this.gameUI = gameUi
+        }
+
+        //Touch
+        const buttons = this.gameUI.touchControlls.children
+
+        //Up
+        buttons[0].addEventListener('touchstart', () => {
+            this.isTouch[0] = true
+        })
+
+        buttons[0].addEventListener('touchend', () => {
+            this.isTouch[0] = false
+        })
+
+        //Down
+        buttons[1].addEventListener('touchstart', () => {
+            this.isTouch[1] = true
+        })
+
+        buttons[1].addEventListener('touchend', () => {
+            this.isTouch[1] = false
+        })
+
+        //Left
+        buttons[2].addEventListener('touchstart', () => {
+            this.isTouch[2] = true
+        })
+
+        buttons[2].addEventListener('touchend', () => {
+            this.isTouch[2] = false
+        })
+
+        //Right
+        buttons[3].addEventListener('touchstart', () => {
+            this.isTouch[3] = true
+        })
+
+        buttons[3].addEventListener('touchend', () => {
+            this.isTouch[3] = false
+        })
+        
     }
 
     update() {
-        if (window.localStorage.getItem('play') === 'false') {
+
+        if (this.gameUI.allowPlayerMove === false) {
             return
         }
+
         const deltaTime = RE.Runtime.deltaTime;
 
         //Collision
@@ -88,27 +146,28 @@ export default class FPController extends RE.Component {
 
         let speedMult = 1
 
+        //Keyboard
         if (RE.Input.keyboard.getKeyPressed("ShiftLeft")) {
             speedMult = 2
         }
 
-        if (!collided.front && RE.Input.keyboard.getKeyPressed("KeyW")) {
+        if (!collided.front && (RE.Input.keyboard.getKeyPressed("KeyW") || this.isTouch[0])) {
             this.player.position.add(movementY.multiplyScalar(-this.speed * speedMult * deltaTime));
         }
 
-        if (!collided.back && RE.Input.keyboard.getKeyPressed("KeyS")) {
+        if (!collided.back && (RE.Input.keyboard.getKeyPressed("KeyS") || this.isTouch[1])) {
             this.player.position.add(movementY.multiplyScalar(this.speed * deltaTime));
         }
 
-        if (!collided.left && RE.Input.keyboard.getKeyPressed("KeyA")) {
+        if (!collided.left && (RE.Input.keyboard.getKeyPressed("KeyA") || this.isTouch[2])) {
             this.player.position.add(movementX.multiplyScalar(-this.speed * deltaTime));
         }
 
-        if (!collided.right && RE.Input.keyboard.getKeyPressed("KeyD")) {
+        if (!collided.right && (RE.Input.keyboard.getKeyPressed("KeyD") || this.isTouch[3])) {
             this.player.position.add(movementX.multiplyScalar(this.speed * deltaTime));
         }
 
-        //Mouse
+        //Mouse TODO touch view
         const mouseX = RE.Input.mouse.movementX * this.sensitivity * RE.Runtime.deltaTime
         const mouseY = RE.Input.mouse.movementY * this.sensitivity * RE.Runtime.deltaTime
 

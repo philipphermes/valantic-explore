@@ -5,11 +5,11 @@ export default class GameUI extends RE.Component {
   private uiContainer: HTMLElement;
   private loadingUI: HTMLElement;
   private startGameUI: HTMLElement;
-  private useTouch: boolean = false;
+
+  public touchControlls: HTMLElement
+  public allowPlayerMove: boolean = false
 
   start() {
-    window.localStorage.setItem("play", "false");
-
     AudioContext["getContext"]().suspend();
 
     this.uiContainer = document.getElementById("rogue-ui") as HTMLElement;
@@ -22,9 +22,9 @@ export default class GameUI extends RE.Component {
     this.createLoadingUI();
 
     this.uiContainer.onclick = () => {
-      RE.Input.mouse.lock();
       this.openFullscreen();
     }
+    this.createPhoneUI()
   }
 
   update() {
@@ -77,6 +77,42 @@ export default class GameUI extends RE.Component {
     this.uiContainer.appendChild(this.loadingUI);
 
     return this.loadingUI;
+  }
+
+  private createPhoneUI() {
+    this.touchControlls = document.createElement("div");
+    this.touchControlls.style.position = 'fixed'
+    this.touchControlls.style.left = "20px"
+    this.touchControlls.style.bottom = "20px"
+    this.touchControlls.style.width = "100px"
+    this.touchControlls.style.height = "100px"
+    this.touchControlls.style.display = "grid"
+    this.touchControlls.style.gridTemplateColumns = "repeat(3, 1fr)"
+    this.touchControlls.style.gridTemplateRows = " repeat(3, 1fr)"
+
+
+    const upButton = document.createElement('button')
+    upButton.style.gridArea = "1 / 2 / 2 / 3"
+    upButton.id = "touchUp"
+
+    const downButton = document.createElement('button')
+    downButton.style.gridArea = "3 / 2 / 4 / 3"
+    downButton.id = "touchDown"
+
+    const leftButton = document.createElement('button')
+    leftButton.style.gridArea = "2 / 1 / 3 / 2"
+    leftButton.id = "touchLeft"
+
+    const rightButton = document.createElement('button')
+    rightButton.style.gridArea = "2 / 3 / 3 / 4"
+    rightButton.id = "touchRight"
+
+    this.touchControlls.appendChild(upButton)
+    this.touchControlls.appendChild(downButton)
+    this.touchControlls.appendChild(leftButton)
+    this.touchControlls.appendChild(rightButton)
+
+    this.uiContainer.appendChild(this.touchControlls)
   }
 
   private createStartGameUI() {
@@ -137,11 +173,10 @@ export default class GameUI extends RE.Component {
   }
 
   private startGame() {
-    if (this.useTouch) {
-      return;
-    }
+    //Allow player to move
+    this.allowPlayerMove = true
 
-    window.localStorage.setItem("play", "true");
+    
 
     //Hide mouse
     RE.Input.mouse.lock();

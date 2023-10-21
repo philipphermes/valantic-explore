@@ -12,6 +12,518 @@ return /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./Assets/Components/FPController.re.ts":
+/*!**********************************************!*\
+  !*** ./Assets/Components/FPController.re.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ FPController)
+/* harmony export */ });
+/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! rogue-engine */ "rogue-engine");
+/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(rogue_engine__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "three");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(three__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _GameUI_re__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GameUI.re */ "./Assets/Components/GameUI.re.ts");
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp(target, key, result);
+  return result;
+};
+
+
+
+class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
+  constructor() {
+    super(...arguments);
+    this.speed = 10;
+    this.sensitivity = 0.1;
+    this.playerColliderBB = [];
+    this.objectsToCollide = [];
+    this.isTouch = [
+      false,
+      false,
+      false,
+      false
+    ];
+  }
+  start() {
+    this.player = this.object3d;
+    this.frontCollider.material.visible = false;
+    this.backCollider.material.visible = false;
+    this.rightCollider.material.visible = false;
+    this.leftCollider.material.visible = false;
+    const mapChilds = this.map.children;
+    mapChilds.forEach((child) => {
+      const box3 = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
+      box3.setFromObject(child);
+      console.log(child.boundingBox);
+      this.objectsToCollide.push(box3);
+    });
+    this.setPlayerBB();
+    const gameUi = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.getComponent(_GameUI_re__WEBPACK_IMPORTED_MODULE_2__["default"], this.object3d);
+    if (gameUi) {
+      this.gameUI = gameUi;
+    }
+    const buttons = this.gameUI.touchControlls.children;
+    buttons[0].addEventListener("touchstart", () => {
+      this.isTouch[0] = true;
+    });
+    buttons[0].addEventListener("touchend", () => {
+      this.isTouch[0] = false;
+    });
+    buttons[1].addEventListener("touchstart", () => {
+      this.isTouch[1] = true;
+    });
+    buttons[1].addEventListener("touchend", () => {
+      this.isTouch[1] = false;
+    });
+    buttons[2].addEventListener("touchstart", () => {
+      this.isTouch[2] = true;
+    });
+    buttons[2].addEventListener("touchend", () => {
+      this.isTouch[2] = false;
+    });
+    buttons[3].addEventListener("touchstart", () => {
+      this.isTouch[3] = true;
+    });
+    buttons[3].addEventListener("touchend", () => {
+      this.isTouch[3] = false;
+    });
+  }
+  update() {
+    if (this.gameUI.allowPlayerMove === false) {
+      return;
+    }
+    const deltaTime = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+    this.setPlayerBB();
+    let collided = {
+      front: false,
+      back: false,
+      right: false,
+      left: false
+    };
+    this.objectsToCollide.forEach((objBB) => {
+      if (objBB.intersectsBox(this.playerColliderBB[0])) {
+        collided.front = true;
+        console.log("front", objBB);
+      }
+      if (objBB.intersectsBox(this.playerColliderBB[1])) {
+        collided.back = true;
+        console.log("back", objBB);
+      }
+      if (objBB.intersectsBox(this.playerColliderBB[2])) {
+        collided.right = true;
+        console.log("right", objBB);
+      }
+      if (objBB.intersectsBox(this.playerColliderBB[3])) {
+        collided.left = true;
+        console.log("left", objBB);
+      }
+    });
+    const movementY = this.player.getWorldDirection(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3()).normalize();
+    const movementX = new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(0, 1, 0).cross(movementY).normalize();
+    let speedMult = 1;
+    if (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("ShiftLeft")) {
+      speedMult = 2;
+    }
+    if (!collided.front && (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("KeyW") || this.isTouch[0])) {
+      this.player.position.add(movementY.multiplyScalar(-this.speed * speedMult * deltaTime));
+    }
+    if (!collided.back && (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("KeyS") || this.isTouch[1])) {
+      this.player.position.add(movementY.multiplyScalar(this.speed * deltaTime));
+    }
+    if (!collided.left && (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("KeyA") || this.isTouch[2])) {
+      this.player.position.add(movementX.multiplyScalar(-this.speed * deltaTime));
+    }
+    if (!collided.right && (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("KeyD") || this.isTouch[3])) {
+      this.player.position.add(movementX.multiplyScalar(this.speed * deltaTime));
+    }
+    const mouseX = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementX * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+    const mouseY = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementY * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+    this.player.rotation.y -= mouseX;
+    this.camera.rotation.x -= mouseY;
+  }
+  setPlayerBB() {
+    if (this.playerColliderBB[0] === void 0) {
+      const playerFrontBB = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
+      playerFrontBB.setFromObject(this.frontCollider);
+      this.playerColliderBB.push(playerFrontBB);
+    } else {
+      this.playerColliderBB[0].copy(this.frontCollider.geometry.boundingBox).applyMatrix4(this.frontCollider.matrixWorld);
+    }
+    if (this.playerColliderBB[1] === void 0) {
+      const playerBackBB = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
+      playerBackBB.setFromObject(this.backCollider);
+      this.playerColliderBB.push(playerBackBB);
+    } else {
+      this.playerColliderBB[1].copy(this.backCollider.geometry.boundingBox).applyMatrix4(this.backCollider.matrixWorld);
+    }
+    if (this.playerColliderBB[2] === void 0) {
+      const playerRightBB = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
+      playerRightBB.setFromObject(this.rightCollider);
+      this.playerColliderBB.push(playerRightBB);
+    } else {
+      this.playerColliderBB[2].copy(this.rightCollider.geometry.boundingBox).applyMatrix4(this.rightCollider.matrixWorld);
+    }
+    if (this.playerColliderBB[3] === void 0) {
+      const playerLeftBB = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
+      playerLeftBB.setFromObject(this.leftCollider);
+      this.playerColliderBB.push(playerLeftBB);
+    } else {
+      this.playerColliderBB[3].copy(this.leftCollider.geometry.boundingBox).applyMatrix4(this.leftCollider.matrixWorld);
+    }
+  }
+}
+__name(FPController, "FPController");
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 20)
+], FPController.prototype, "speed", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 1)
+], FPController.prototype, "sensitivity", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
+], FPController.prototype, "frontCollider", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
+], FPController.prototype, "backCollider", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
+], FPController.prototype, "rightCollider", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
+], FPController.prototype, "leftCollider", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
+], FPController.prototype, "camera", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
+], FPController.prototype, "map", 2);
+rogue_engine__WEBPACK_IMPORTED_MODULE_0__.registerComponent(FPController);
+
+
+/***/ }),
+
+/***/ "./Assets/Components/GameUI.re.ts":
+/*!****************************************!*\
+  !*** ./Assets/Components/GameUI.re.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ GameUI)
+/* harmony export */ });
+/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! rogue-engine */ "rogue-engine");
+/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(rogue_engine__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "three");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(three__WEBPACK_IMPORTED_MODULE_1__);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
+
+class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
+  constructor() {
+    super(...arguments);
+    this.allowPlayerMove = false;
+  }
+  start() {
+    three__WEBPACK_IMPORTED_MODULE_1__.AudioContext.getContext().suspend();
+    this.uiContainer = document.getElementById("rogue-ui");
+    const myCss = document.createElement("style");
+    this.uiContainer.appendChild(myCss);
+    this.uiContainer.style.fontFamily = "Arial";
+    this.createLoadingUI();
+    this.uiContainer.onclick = () => {
+      this.openFullscreen();
+    };
+    this.createPhoneUI();
+  }
+  update() {
+    if (this.loadingUI.isConnected && !this.startGameUI) {
+      this.loadingUI.style.display = "none";
+      this.createStartGameUI();
+    }
+  }
+  openFullscreen() {
+    if (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.isDev())
+      return;
+    const elem = document.getElementById("rogue-app");
+    if (!elem)
+      return;
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem["mozRequestFullScreen"]) {
+      elem["mozRequestFullScreen"]();
+    } else if (elem["webkitRequestFullscreen"]) {
+      elem["webkitRequestFullscreen"]();
+    } else if (elem["msRequestFullscreen"]) {
+      elem["msRequestFullscreen"]();
+    }
+  }
+  createLoadingUI() {
+    if (this.loadingUI) {
+      if (this.loadingUI.style.display === "none")
+        this.loadingUI.style.display = "";
+      return this.loadingUI;
+    }
+    this.loadingUI = document.createElement("div");
+    this.loadingUI.style.margin = "auto";
+    this.loadingUI.style.textAlign = "center";
+    this.loadingUI.style.cursor = "pointer";
+    this.loadingUI.style.color = "white";
+    this.loadingUI.style.position = "relative";
+    this.loadingUI.style.width = "fit-content";
+    this.loadingUI.style.top = "50%";
+    this.loadingUI.style.fontSize = "20px";
+    this.loadingUI.textContent = "Loading...";
+    this.uiContainer.appendChild(this.loadingUI);
+    return this.loadingUI;
+  }
+  createPhoneUI() {
+    this.touchControlls = document.createElement("div");
+    this.touchControlls.style.position = "fixed";
+    this.touchControlls.style.left = "20px";
+    this.touchControlls.style.bottom = "20px";
+    this.touchControlls.style.width = "100px";
+    this.touchControlls.style.height = "100px";
+    this.touchControlls.style.display = "grid";
+    this.touchControlls.style.gridTemplateColumns = "repeat(3, 1fr)";
+    this.touchControlls.style.gridTemplateRows = " repeat(3, 1fr)";
+    const upButton = document.createElement("button");
+    upButton.style.gridArea = "1 / 2 / 2 / 3";
+    upButton.id = "touchUp";
+    const downButton = document.createElement("button");
+    downButton.style.gridArea = "3 / 2 / 4 / 3";
+    downButton.id = "touchDown";
+    const leftButton = document.createElement("button");
+    leftButton.style.gridArea = "2 / 1 / 3 / 2";
+    leftButton.id = "touchLeft";
+    const rightButton = document.createElement("button");
+    rightButton.style.gridArea = "2 / 3 / 3 / 4";
+    rightButton.id = "touchRight";
+    this.touchControlls.appendChild(upButton);
+    this.touchControlls.appendChild(downButton);
+    this.touchControlls.appendChild(leftButton);
+    this.touchControlls.appendChild(rightButton);
+    this.uiContainer.appendChild(this.touchControlls);
+  }
+  createStartGameUI() {
+    if (this.startGameUI) {
+      if (this.startGameUI.style.display === "none")
+        this.startGameUI.style.display = "flex";
+      return this.startGameUI;
+    }
+    this.startGameUI = document.createElement("div");
+    this.startGameUI.style.margin = "auto";
+    this.startGameUI.style.textAlign = "center";
+    this.startGameUI.style.height = "100%";
+    this.startGameUI.style.width = "100%";
+    this.startGameUI.style.backdropFilter = "blur(10px)";
+    this.startGameUI.style.display = "flex";
+    this.startGameUI.style.flexDirection = "column";
+    this.startGameUI.style.justifyContent = "center";
+    const gameTitle = document.createElement("h1");
+    gameTitle.textContent = "Valantic City";
+    gameTitle.style.color = "#FF4B4B";
+    const playBtn = document.createElement("h2");
+    playBtn.style.cursor = "pointer";
+    playBtn.style.color = "#F99E49";
+    playBtn.style.position = "relative";
+    playBtn.textContent = "Start exploring!";
+    playBtn.addEventListener("mouseenter", () => {
+      playBtn.style.color = "#FF744F";
+    });
+    playBtn.addEventListener("mouseleave", () => {
+      playBtn.style.color = "#F99E49";
+    });
+    playBtn.ontouchend = () => {
+      this.startGameUI.style.display = "none";
+      this.useTouch = true;
+      rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.enabled = false;
+      this.openFullscreen();
+      this.startGame();
+    };
+    playBtn.onclick = () => {
+      this.startGameUI.style.display = "none";
+      this.startGame();
+    };
+    this.startGameUI.appendChild(gameTitle);
+    this.startGameUI.appendChild(playBtn);
+    this.uiContainer.appendChild(this.startGameUI);
+    return this.startGameUI;
+  }
+  startGame() {
+    this.allowPlayerMove = true;
+    rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.lock();
+    const videoElements = document.getElementsByClassName("videoPlayer");
+    for (let key in videoElements) {
+      try {
+        videoElements[key].play();
+      } catch (e) {
+      }
+    }
+  }
+}
+__name(GameUI, "GameUI");
+rogue_engine__WEBPACK_IMPORTED_MODULE_0__.registerComponent(GameUI);
+
+
+/***/ }),
+
+/***/ "./Assets/Components/PostProcessing.re.ts":
+/*!************************************************!*\
+  !*** ./Assets/Components/PostProcessing.re.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ PostProcessing)
+/* harmony export */ });
+/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! rogue-engine */ "rogue-engine");
+/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(rogue_engine__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var three_examples_jsm_postprocessing_EffectComposer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/postprocessing/EffectComposer */ "./node_modules/three/examples/jsm/postprocessing/EffectComposer.js");
+/* harmony import */ var three_examples_jsm_postprocessing_RenderPass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/examples/jsm/postprocessing/RenderPass */ "./node_modules/three/examples/jsm/postprocessing/RenderPass.js");
+/* harmony import */ var three_examples_jsm_postprocessing_UnrealBloomPass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three/examples/jsm/postprocessing/UnrealBloomPass */ "./node_modules/three/examples/jsm/postprocessing/UnrealBloomPass.js");
+/* harmony import */ var three_examples_jsm_postprocessing_SMAAPass__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! three/examples/jsm/postprocessing/SMAAPass */ "./node_modules/three/examples/jsm/postprocessing/SMAAPass.js");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! three */ "three");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(three__WEBPACK_IMPORTED_MODULE_5__);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp(target, key, result);
+  return result;
+};
+
+
+
+
+
+
+class PostProcessing extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
+  constructor() {
+    super(...arguments);
+    this.bloom_strength = 0.25;
+    this.bloom_radius = 0.025;
+    this.bloom_threshhold = 0.025;
+    this.smaa = false;
+  }
+  start() {
+    const scene = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.scene;
+    const camera = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.camera;
+    const renderer = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.renderer;
+    const renderScene = new three_examples_jsm_postprocessing_RenderPass__WEBPACK_IMPORTED_MODULE_2__.RenderPass(scene, camera);
+    const composer = new three_examples_jsm_postprocessing_EffectComposer__WEBPACK_IMPORTED_MODULE_1__.EffectComposer(renderer);
+    composer.addPass(renderScene);
+    const bloom = new three_examples_jsm_postprocessing_UnrealBloomPass__WEBPACK_IMPORTED_MODULE_3__.UnrealBloomPass(new three__WEBPACK_IMPORTED_MODULE_5__.Vector2(rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.width, rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.height), this.bloom_strength, this.bloom_radius, this.bloom_threshhold);
+    composer.addPass(bloom);
+    if (this.smaa) {
+      const smaa = new three_examples_jsm_postprocessing_SMAAPass__WEBPACK_IMPORTED_MODULE_4__.SMAAPass(rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.width, rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.height);
+      composer.addPass(smaa);
+    }
+    rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.renderFunc = () => {
+      composer.render();
+    };
+  }
+}
+__name(PostProcessing, "PostProcessing");
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 1)
+], PostProcessing.prototype, "bloom_strength", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 0.1)
+], PostProcessing.prototype, "bloom_radius", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 0.1)
+], PostProcessing.prototype, "bloom_threshhold", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.checkbox()
+], PostProcessing.prototype, "smaa", 2);
+rogue_engine__WEBPACK_IMPORTED_MODULE_0__.registerComponent(PostProcessing);
+
+
+/***/ }),
+
+/***/ "./Assets/Components/VideoPlayer.re.ts":
+/*!*********************************************!*\
+  !*** ./Assets/Components/VideoPlayer.re.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ VideoPlayer)
+/* harmony export */ });
+/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! rogue-engine */ "rogue-engine");
+/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(rogue_engine__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "three");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(three__WEBPACK_IMPORTED_MODULE_1__);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp(target, key, result);
+  return result;
+};
+
+
+class VideoPlayer extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
+  constructor() {
+    super(...arguments);
+    this.volume = 0.25;
+  }
+  start() {
+    const video = document.createElement("video");
+    video.src = this.videoUrl;
+    video.classList.add("videoPlayer");
+    video.loop = true;
+    video.volume = this.volume;
+    video.playsInline = true;
+    document.body.appendChild(video);
+    const texture = new three__WEBPACK_IMPORTED_MODULE_1__.VideoTexture(video);
+    texture.needsUpdate;
+    texture.minFilter = three__WEBPACK_IMPORTED_MODULE_1__.LinearFilter;
+    texture.magFilter = three__WEBPACK_IMPORTED_MODULE_1__.LinearFilter;
+    texture.format = three__WEBPACK_IMPORTED_MODULE_1__.RGBAFormat;
+    const material = new three__WEBPACK_IMPORTED_MODULE_1__.MeshBasicMaterial({ map: texture });
+    video.load();
+    this.object3d.material = material;
+  }
+}
+__name(VideoPlayer, "VideoPlayer");
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.text()
+], VideoPlayer.prototype, "videoUrl", 2);
+__decorateClass([
+  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 1)
+], VideoPlayer.prototype, "volume", 2);
+rogue_engine__WEBPACK_IMPORTED_MODULE_0__.registerComponent(VideoPlayer);
+
+
+/***/ }),
+
 /***/ "rogue-engine":
 /*!******************************************************************************************************************!*\
   !*** external {"commonjs":"rogue-engine","commonjs2":"rogue-engine","amd":"rogue-engine","root":"rogue-engine"} ***!
@@ -2113,445 +2625,16 @@ const SMAABlendShader = {
 /******/ 	})();
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
-(() => {
-var __webpack_exports__ = {};
-/*!**********************************************!*\
-  !*** ./Assets/Components/FPController.re.ts ***!
-  \**********************************************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ FPController)
-/* harmony export */ });
-/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! rogue-engine */ "rogue-engine");
-/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(rogue_engine__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "three");
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(three__WEBPACK_IMPORTED_MODULE_1__);
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp(target, key, result);
-  return result;
-};
-
-
-class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
-  constructor() {
-    super(...arguments);
-    this.speed = 10;
-    this.sensitivity = 0.1;
-    this.playerColliderBB = [];
-    this.objectsToCollide = [];
-  }
-  start() {
-    this.player = this.object3d;
-    this.frontCollider.material.visible = false;
-    this.backCollider.material.visible = false;
-    this.rightCollider.material.visible = false;
-    this.leftCollider.material.visible = false;
-    const mapChilds = this.map.children;
-    mapChilds.forEach((child) => {
-      const box3 = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
-      box3.setFromObject(child);
-      console.log(child.boundingBox);
-      this.objectsToCollide.push(box3);
-    });
-    this.setPlayerBB();
-  }
-  update() {
-    if (window.localStorage.getItem("play") === "false") {
-      return;
-    }
-    const deltaTime = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
-    this.setPlayerBB();
-    let collided = {
-      front: false,
-      back: false,
-      right: false,
-      left: false
-    };
-    this.objectsToCollide.forEach((objBB) => {
-      if (objBB.intersectsBox(this.playerColliderBB[0])) {
-        collided.front = true;
-        console.log("front", objBB);
-      }
-      if (objBB.intersectsBox(this.playerColliderBB[1])) {
-        collided.back = true;
-        console.log("back", objBB);
-      }
-      if (objBB.intersectsBox(this.playerColliderBB[2])) {
-        collided.right = true;
-        console.log("right", objBB);
-      }
-      if (objBB.intersectsBox(this.playerColliderBB[3])) {
-        collided.left = true;
-        console.log("left", objBB);
-      }
-    });
-    const movementY = this.player.getWorldDirection(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3()).normalize();
-    const movementX = new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(0, 1, 0).cross(movementY).normalize();
-    let speedMult = 1;
-    if (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("ShiftLeft")) {
-      speedMult = 2;
-    }
-    if (!collided.front && rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("KeyW")) {
-      this.player.position.add(movementY.multiplyScalar(-this.speed * speedMult * deltaTime));
-    }
-    if (!collided.back && rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("KeyS")) {
-      this.player.position.add(movementY.multiplyScalar(this.speed * deltaTime));
-    }
-    if (!collided.left && rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("KeyA")) {
-      this.player.position.add(movementX.multiplyScalar(-this.speed * deltaTime));
-    }
-    if (!collided.right && rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("KeyD")) {
-      this.player.position.add(movementX.multiplyScalar(this.speed * deltaTime));
-    }
-    const mouseX = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementX * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
-    const mouseY = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementY * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
-    this.player.rotation.y -= mouseX;
-    this.camera.rotation.x -= mouseY;
-  }
-  setPlayerBB() {
-    if (this.playerColliderBB[0] === void 0) {
-      const playerFrontBB = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
-      playerFrontBB.setFromObject(this.frontCollider);
-      this.playerColliderBB.push(playerFrontBB);
-    } else {
-      this.playerColliderBB[0].copy(this.frontCollider.geometry.boundingBox).applyMatrix4(this.frontCollider.matrixWorld);
-    }
-    if (this.playerColliderBB[1] === void 0) {
-      const playerBackBB = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
-      playerBackBB.setFromObject(this.backCollider);
-      this.playerColliderBB.push(playerBackBB);
-    } else {
-      this.playerColliderBB[1].copy(this.backCollider.geometry.boundingBox).applyMatrix4(this.backCollider.matrixWorld);
-    }
-    if (this.playerColliderBB[2] === void 0) {
-      const playerRightBB = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
-      playerRightBB.setFromObject(this.rightCollider);
-      this.playerColliderBB.push(playerRightBB);
-    } else {
-      this.playerColliderBB[2].copy(this.rightCollider.geometry.boundingBox).applyMatrix4(this.rightCollider.matrixWorld);
-    }
-    if (this.playerColliderBB[3] === void 0) {
-      const playerLeftBB = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
-      playerLeftBB.setFromObject(this.leftCollider);
-      this.playerColliderBB.push(playerLeftBB);
-    } else {
-      this.playerColliderBB[3].copy(this.leftCollider.geometry.boundingBox).applyMatrix4(this.leftCollider.matrixWorld);
-    }
-  }
-}
-__name(FPController, "FPController");
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 20)
-], FPController.prototype, "speed", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 1)
-], FPController.prototype, "sensitivity", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
-], FPController.prototype, "frontCollider", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
-], FPController.prototype, "backCollider", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
-], FPController.prototype, "rightCollider", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
-], FPController.prototype, "leftCollider", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
-], FPController.prototype, "camera", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.object3d()
-], FPController.prototype, "map", 2);
-rogue_engine__WEBPACK_IMPORTED_MODULE_0__.registerComponent(FPController);
-
-})();
-
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
-(() => {
-var __webpack_exports__ = {};
-/*!****************************************!*\
-  !*** ./Assets/Components/GameUI.re.ts ***!
-  \****************************************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ GameUI)
-/* harmony export */ });
-/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! rogue-engine */ "rogue-engine");
-/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(rogue_engine__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "three");
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(three__WEBPACK_IMPORTED_MODULE_1__);
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
-
-class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
-  constructor() {
-    super(...arguments);
-    this.useTouch = false;
-  }
-  start() {
-    window.localStorage.setItem("play", "false");
-    three__WEBPACK_IMPORTED_MODULE_1__.AudioContext.getContext().suspend();
-    this.uiContainer = document.getElementById("rogue-ui");
-    const myCss = document.createElement("style");
-    this.uiContainer.appendChild(myCss);
-    this.uiContainer.style.fontFamily = "Arial";
-    this.createLoadingUI();
-    this.uiContainer.onclick = () => {
-      rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.lock();
-      this.openFullscreen();
-    };
-  }
-  update() {
-    if (this.loadingUI.isConnected && !this.startGameUI) {
-      this.loadingUI.style.display = "none";
-      this.createStartGameUI();
-    }
-  }
-  openFullscreen() {
-    if (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.isDev())
-      return;
-    const elem = document.getElementById("rogue-app");
-    if (!elem)
-      return;
-    if (elem.requestFullscreen) {
-      elem.requestFullscreen();
-    } else if (elem["mozRequestFullScreen"]) {
-      elem["mozRequestFullScreen"]();
-    } else if (elem["webkitRequestFullscreen"]) {
-      elem["webkitRequestFullscreen"]();
-    } else if (elem["msRequestFullscreen"]) {
-      elem["msRequestFullscreen"]();
-    }
-  }
-  createLoadingUI() {
-    if (this.loadingUI) {
-      if (this.loadingUI.style.display === "none")
-        this.loadingUI.style.display = "";
-      return this.loadingUI;
-    }
-    this.loadingUI = document.createElement("div");
-    this.loadingUI.style.margin = "auto";
-    this.loadingUI.style.textAlign = "center";
-    this.loadingUI.style.cursor = "pointer";
-    this.loadingUI.style.color = "white";
-    this.loadingUI.style.position = "relative";
-    this.loadingUI.style.width = "fit-content";
-    this.loadingUI.style.top = "50%";
-    this.loadingUI.style.fontSize = "20px";
-    this.loadingUI.textContent = "Loading...";
-    this.uiContainer.appendChild(this.loadingUI);
-    return this.loadingUI;
-  }
-  createStartGameUI() {
-    if (this.startGameUI) {
-      if (this.startGameUI.style.display === "none")
-        this.startGameUI.style.display = "flex";
-      return this.startGameUI;
-    }
-    this.startGameUI = document.createElement("div");
-    this.startGameUI.style.margin = "auto";
-    this.startGameUI.style.textAlign = "center";
-    this.startGameUI.style.height = "100%";
-    this.startGameUI.style.width = "100%";
-    this.startGameUI.style.backdropFilter = "blur(10px)";
-    this.startGameUI.style.display = "flex";
-    this.startGameUI.style.flexDirection = "column";
-    this.startGameUI.style.justifyContent = "center";
-    const gameTitle = document.createElement("h1");
-    gameTitle.textContent = "Valantic City";
-    gameTitle.style.color = "#FF4B4B";
-    const playBtn = document.createElement("h2");
-    playBtn.style.cursor = "pointer";
-    playBtn.style.color = "#F99E49";
-    playBtn.style.position = "relative";
-    playBtn.textContent = "Start exploring!";
-    playBtn.addEventListener("mouseenter", () => {
-      playBtn.style.color = "#FF744F";
-    });
-    playBtn.addEventListener("mouseleave", () => {
-      playBtn.style.color = "#F99E49";
-    });
-    playBtn.ontouchend = () => {
-      this.startGameUI.style.display = "none";
-      this.useTouch = true;
-      rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.enabled = false;
-      this.openFullscreen();
-      this.startGame();
-    };
-    playBtn.onclick = () => {
-      this.startGameUI.style.display = "none";
-      this.startGame();
-    };
-    this.startGameUI.appendChild(gameTitle);
-    this.startGameUI.appendChild(playBtn);
-    this.uiContainer.appendChild(this.startGameUI);
-    return this.startGameUI;
-  }
-  startGame() {
-    if (this.useTouch) {
-      return;
-    }
-    window.localStorage.setItem("play", "true");
-    rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.lock();
-    const videoElements = document.getElementsByClassName("videoPlayer");
-    for (let key in videoElements) {
-      try {
-        videoElements[key].play();
-      } catch (e) {
-      }
-    }
-  }
-}
-__name(GameUI, "GameUI");
-rogue_engine__WEBPACK_IMPORTED_MODULE_0__.registerComponent(GameUI);
-
-})();
-
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
-(() => {
-var __webpack_exports__ = {};
-/*!************************************************!*\
-  !*** ./Assets/Components/PostProcessing.re.ts ***!
-  \************************************************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ PostProcessing)
-/* harmony export */ });
-/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! rogue-engine */ "rogue-engine");
-/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(rogue_engine__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var three_examples_jsm_postprocessing_EffectComposer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/postprocessing/EffectComposer */ "./node_modules/three/examples/jsm/postprocessing/EffectComposer.js");
-/* harmony import */ var three_examples_jsm_postprocessing_RenderPass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/examples/jsm/postprocessing/RenderPass */ "./node_modules/three/examples/jsm/postprocessing/RenderPass.js");
-/* harmony import */ var three_examples_jsm_postprocessing_UnrealBloomPass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three/examples/jsm/postprocessing/UnrealBloomPass */ "./node_modules/three/examples/jsm/postprocessing/UnrealBloomPass.js");
-/* harmony import */ var three_examples_jsm_postprocessing_SMAAPass__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! three/examples/jsm/postprocessing/SMAAPass */ "./node_modules/three/examples/jsm/postprocessing/SMAAPass.js");
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! three */ "three");
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(three__WEBPACK_IMPORTED_MODULE_5__);
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp(target, key, result);
-  return result;
-};
-
-
-
-
-
-
-class PostProcessing extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
-  constructor() {
-    super(...arguments);
-    this.bloom_strength = 0.25;
-    this.bloom_radius = 0.025;
-    this.bloom_threshhold = 0.025;
-    this.smaa = false;
-  }
-  start() {
-    const scene = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.scene;
-    const camera = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.camera;
-    const renderer = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.renderer;
-    const renderScene = new three_examples_jsm_postprocessing_RenderPass__WEBPACK_IMPORTED_MODULE_2__.RenderPass(scene, camera);
-    const composer = new three_examples_jsm_postprocessing_EffectComposer__WEBPACK_IMPORTED_MODULE_1__.EffectComposer(renderer);
-    composer.addPass(renderScene);
-    const bloom = new three_examples_jsm_postprocessing_UnrealBloomPass__WEBPACK_IMPORTED_MODULE_3__.UnrealBloomPass(new three__WEBPACK_IMPORTED_MODULE_5__.Vector2(rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.width, rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.height), this.bloom_strength, this.bloom_radius, this.bloom_threshhold);
-    composer.addPass(bloom);
-    if (this.smaa) {
-      const smaa = new three_examples_jsm_postprocessing_SMAAPass__WEBPACK_IMPORTED_MODULE_4__.SMAAPass(rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.width, rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.height);
-      composer.addPass(smaa);
-    }
-    rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.renderFunc = () => {
-      composer.render();
-    };
-  }
-}
-__name(PostProcessing, "PostProcessing");
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 1)
-], PostProcessing.prototype, "bloom_strength", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 0.1)
-], PostProcessing.prototype, "bloom_radius", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.num(0, 0.1)
-], PostProcessing.prototype, "bloom_threshhold", 2);
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.checkbox()
-], PostProcessing.prototype, "smaa", 2);
-rogue_engine__WEBPACK_IMPORTED_MODULE_0__.registerComponent(PostProcessing);
-
-})();
-
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
-(() => {
-/*!*********************************************!*\
-  !*** ./Assets/Components/VideoPlayer.re.ts ***!
-  \*********************************************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ VideoPlayer)
-/* harmony export */ });
-/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! rogue-engine */ "rogue-engine");
-/* harmony import */ var rogue_engine__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(rogue_engine__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "three");
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(three__WEBPACK_IMPORTED_MODULE_1__);
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp(target, key, result);
-  return result;
-};
-
-
-class VideoPlayer extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
-  start() {
-    const video = document.createElement("video");
-    video.src = this.videoUrl;
-    video.classList.add("videoPlayer");
-    video.loop = true;
-    document.body.appendChild(video);
-    const texture = new three__WEBPACK_IMPORTED_MODULE_1__.VideoTexture(video);
-    texture.needsUpdate;
-    texture.minFilter = three__WEBPACK_IMPORTED_MODULE_1__.LinearFilter;
-    texture.magFilter = three__WEBPACK_IMPORTED_MODULE_1__.LinearFilter;
-    texture.format = three__WEBPACK_IMPORTED_MODULE_1__.RGBAFormat;
-    const material = new three__WEBPACK_IMPORTED_MODULE_1__.MeshBasicMaterial({ map: texture });
-    video.load();
-    this.object3d.material = material;
-  }
-}
-__name(VideoPlayer, "VideoPlayer");
-__decorateClass([
-  rogue_engine__WEBPACK_IMPORTED_MODULE_0__.props.text()
-], VideoPlayer.prototype, "videoUrl", 2);
-rogue_engine__WEBPACK_IMPORTED_MODULE_0__.registerComponent(VideoPlayer);
-
-})();
-
-__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	__webpack_require__("./Assets/Components/FPController.re.ts");
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	__webpack_require__("./Assets/Components/GameUI.re.ts");
+/******/ 	__webpack_require__("./Assets/Components/PostProcessing.re.ts");
+/******/ 	var __webpack_exports__ = __webpack_require__("./Assets/Components/VideoPlayer.re.ts");
+/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()
 ;
