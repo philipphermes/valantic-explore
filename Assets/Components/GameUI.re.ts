@@ -7,7 +7,9 @@ export default class GameUI extends RE.Component {
   private startGameUI: HTMLElement;
 
   public touchControlls: HTMLElement
+  public touchCamera: HTMLElement
   public allowPlayerMove: boolean = false
+  public isTouch = false
 
   start() {
     AudioContext["getContext"]().suspend();
@@ -80,6 +82,7 @@ export default class GameUI extends RE.Component {
   }
 
   private createPhoneUI() {
+    //Movement
     this.touchControlls = document.createElement("div");
     this.touchControlls.style.position = 'fixed'
     this.touchControlls.style.left = "20px"
@@ -89,7 +92,7 @@ export default class GameUI extends RE.Component {
     this.touchControlls.style.display = "grid"
     this.touchControlls.style.gridTemplateColumns = "repeat(3, 1fr)"
     this.touchControlls.style.gridTemplateRows = " repeat(3, 1fr)"
-
+    this.touchControlls.id = "touchControlls"
 
     const upButton = document.createElement('button')
     upButton.style.gridArea = "1 / 2 / 2 / 3"
@@ -113,6 +116,41 @@ export default class GameUI extends RE.Component {
     this.touchControlls.appendChild(rightButton)
 
     this.uiContainer.appendChild(this.touchControlls)
+
+    //Camera
+    this.touchCamera = document.createElement("div");
+    this.touchCamera.style.position = 'fixed'
+    this.touchCamera.style.right = "20px"
+    this.touchCamera.style.bottom = "20px"
+    this.touchCamera.style.width = "100px"
+    this.touchCamera.style.height = "100px"
+    this.touchCamera.style.display = "grid"
+    this.touchCamera.style.gridTemplateColumns = "repeat(3, 1fr)"
+    this.touchCamera.style.gridTemplateRows = " repeat(3, 1fr)"
+    this.touchCamera.id = "touchCamera"
+
+    const upButtonCamera = document.createElement('button')
+    upButtonCamera.style.gridArea = "1 / 2 / 2 / 3"
+    upButtonCamera.id = "cameraUp"
+
+    const downButtonCamera = document.createElement('button')
+    downButtonCamera.style.gridArea = "3 / 2 / 4 / 3"
+    downButtonCamera.id = "cameraDown"
+
+    const leftButtonCamera = document.createElement('button')
+    leftButtonCamera.style.gridArea = "2 / 1 / 3 / 2"
+    leftButtonCamera.id = "cameraLeft"
+
+    const rightButtonCamera = document.createElement('button')
+    rightButtonCamera.style.gridArea = "2 / 3 / 3 / 4"
+    rightButtonCamera.id = "cameraRight"
+
+    this.touchCamera.appendChild(upButtonCamera)
+    this.touchCamera.appendChild(downButtonCamera)
+    this.touchCamera.appendChild(leftButtonCamera)
+    this.touchCamera.appendChild(rightButtonCamera)
+
+    this.uiContainer.appendChild(this.touchCamera)
   }
 
   private createStartGameUI() {
@@ -153,8 +191,8 @@ export default class GameUI extends RE.Component {
 
     playBtn.ontouchend = () => {
       this.startGameUI.style.display = "none";
-      this.useTouch = true;
       RE.Input.mouse.enabled = false;
+      this.isTouch = true
       this.openFullscreen();
       this.startGame();
     };
@@ -175,8 +213,6 @@ export default class GameUI extends RE.Component {
   private startGame() {
     //Allow player to move
     this.allowPlayerMove = true
-
-    
 
     //Hide mouse
     RE.Input.mouse.lock();

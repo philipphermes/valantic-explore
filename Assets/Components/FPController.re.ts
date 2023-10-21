@@ -31,6 +31,13 @@ export default class FPController extends RE.Component {
         false, //Right
     ]
 
+    isTouchCamera: Array<boolean> = [
+        false, //Up
+        false, //Down
+        false, //Left
+        false, //Right
+    ]
+
     start(): void {
         this.player = this.object3d //Player
 
@@ -45,8 +52,6 @@ export default class FPController extends RE.Component {
         mapChilds.forEach(child => {
             const box3: THREE.Box3 = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3())
             box3.setFromObject(child)
-
-            console.log(child.boundingBox)
             this.objectsToCollide.push(box3)
         })
 
@@ -59,7 +64,7 @@ export default class FPController extends RE.Component {
             this.gameUI = gameUi
         }
 
-        //Touch
+        //Touch Movement
         const buttons = this.gameUI.touchControlls.children
 
         //Up
@@ -97,7 +102,45 @@ export default class FPController extends RE.Component {
         buttons[3].addEventListener('touchend', () => {
             this.isTouch[3] = false
         })
-        
+
+        //Touch Camera
+        const cameraButtons = this.gameUI.touchCamera.children
+
+        //Up
+        cameraButtons[0].addEventListener('touchstart', () => {
+            this.isTouchCamera[0] = true
+        })
+
+        cameraButtons[0].addEventListener('touchend', () => {
+            this.isTouchCamera[0] = false
+        })
+
+        //Down
+        cameraButtons[1].addEventListener('touchstart', () => {
+            this.isTouchCamera[1] = true
+        })
+
+        cameraButtons[1].addEventListener('touchend', () => {
+            this.isTouchCamera[1] = false
+        })
+
+        //Left
+        cameraButtons[2].addEventListener('touchstart', () => {
+            this.isTouchCamera[2] = true
+        })
+
+        cameraButtons[2].addEventListener('touchend', () => {
+            this.isTouchCamera[2] = false
+        })
+
+        //Right
+        cameraButtons[3].addEventListener('touchstart', () => {
+            this.isTouchCamera[3] = true
+        })
+
+        cameraButtons[3].addEventListener('touchend', () => {
+            this.isTouchCamera[3] = false
+        })
     }
 
     update() {
@@ -121,22 +164,18 @@ export default class FPController extends RE.Component {
         this.objectsToCollide.forEach(objBB => {
             if (objBB.intersectsBox(this.playerColliderBB[0])) {
                 collided.front = true
-                console.log("front", objBB)
             }
 
             if (objBB.intersectsBox(this.playerColliderBB[1])) {
                 collided.back = true
-                console.log("back", objBB)
             }
 
             if (objBB.intersectsBox(this.playerColliderBB[2])) {
                 collided.right = true
-                console.log("right", objBB)
             }
 
             if (objBB.intersectsBox(this.playerColliderBB[3])) {
                 collided.left = true
-                console.log("left", objBB)
             }
         })
 
@@ -167,12 +206,25 @@ export default class FPController extends RE.Component {
             this.player.position.add(movementX.multiplyScalar(this.speed * deltaTime));
         }
 
-        //Mouse TODO touch view
-        const mouseX = RE.Input.mouse.movementX * this.sensitivity * RE.Runtime.deltaTime
-        const mouseY = RE.Input.mouse.movementY * this.sensitivity * RE.Runtime.deltaTime
 
-        this.player.rotation.y -= mouseX
-        this.camera.rotation.x -= mouseY
+        //Mouse
+        if (this.gameUI.isTouch) {
+           
+            if (this.isTouchCamera[0])
+                this.camera.rotation.x += 2 * this.sensitivity * RE.Runtime.deltaTime
+
+            if (this.isTouchCamera[1])
+                this.camera.rotation.x -= 2 * this.sensitivity * RE.Runtime.deltaTime
+            
+            if (this.isTouchCamera[2])
+                this.player.rotation.y += 2 * this.sensitivity * RE.Runtime.deltaTime
+
+            if (this.isTouchCamera[3])
+                this.player.rotation.y -= 2 * this.sensitivity * RE.Runtime.deltaTime
+        } else {
+            this.player.rotation.y -= RE.Input.mouse.movementX * this.sensitivity * RE.Runtime.deltaTime
+            this.camera.rotation.x -= RE.Input.mouse.movementY * this.sensitivity * RE.Runtime.deltaTime
+        }
     }
 
     //PlayerBB

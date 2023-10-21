@@ -55,6 +55,12 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
       false,
       false
     ];
+    this.isTouchCamera = [
+      false,
+      false,
+      false,
+      false
+    ];
   }
   start() {
     this.player = this.object3d;
@@ -66,7 +72,6 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     mapChilds.forEach((child) => {
       const box3 = new three__WEBPACK_IMPORTED_MODULE_1__.Box3(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(), new three__WEBPACK_IMPORTED_MODULE_1__.Vector3());
       box3.setFromObject(child);
-      console.log(child.boundingBox);
       this.objectsToCollide.push(box3);
     });
     this.setPlayerBB();
@@ -99,6 +104,31 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     buttons[3].addEventListener("touchend", () => {
       this.isTouch[3] = false;
     });
+    const cameraButtons = this.gameUI.touchCamera.children;
+    cameraButtons[0].addEventListener("touchstart", () => {
+      this.isTouchCamera[0] = true;
+    });
+    cameraButtons[0].addEventListener("touchend", () => {
+      this.isTouchCamera[0] = false;
+    });
+    cameraButtons[1].addEventListener("touchstart", () => {
+      this.isTouchCamera[1] = true;
+    });
+    cameraButtons[1].addEventListener("touchend", () => {
+      this.isTouchCamera[1] = false;
+    });
+    cameraButtons[2].addEventListener("touchstart", () => {
+      this.isTouchCamera[2] = true;
+    });
+    cameraButtons[2].addEventListener("touchend", () => {
+      this.isTouchCamera[2] = false;
+    });
+    cameraButtons[3].addEventListener("touchstart", () => {
+      this.isTouchCamera[3] = true;
+    });
+    cameraButtons[3].addEventListener("touchend", () => {
+      this.isTouchCamera[3] = false;
+    });
   }
   update() {
     if (this.gameUI.allowPlayerMove === false) {
@@ -115,19 +145,15 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     this.objectsToCollide.forEach((objBB) => {
       if (objBB.intersectsBox(this.playerColliderBB[0])) {
         collided.front = true;
-        console.log("front", objBB);
       }
       if (objBB.intersectsBox(this.playerColliderBB[1])) {
         collided.back = true;
-        console.log("back", objBB);
       }
       if (objBB.intersectsBox(this.playerColliderBB[2])) {
         collided.right = true;
-        console.log("right", objBB);
       }
       if (objBB.intersectsBox(this.playerColliderBB[3])) {
         collided.left = true;
-        console.log("left", objBB);
       }
     });
     const movementY = this.player.getWorldDirection(new three__WEBPACK_IMPORTED_MODULE_1__.Vector3()).normalize();
@@ -148,10 +174,19 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     if (!collided.right && (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.keyboard.getKeyPressed("KeyD") || this.isTouch[3])) {
       this.player.position.add(movementX.multiplyScalar(this.speed * deltaTime));
     }
-    const mouseX = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementX * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
-    const mouseY = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementY * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
-    this.player.rotation.y -= mouseX;
-    this.camera.rotation.x -= mouseY;
+    if (this.gameUI.isTouch) {
+      if (this.isTouchCamera[0])
+        this.camera.rotation.x += 2 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+      if (this.isTouchCamera[1])
+        this.camera.rotation.x -= 2 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+      if (this.isTouchCamera[2])
+        this.player.rotation.y += 2 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+      if (this.isTouchCamera[3])
+        this.player.rotation.y -= 2 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+    } else {
+      this.player.rotation.y -= rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementX * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+      this.camera.rotation.x -= rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementY * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+    }
   }
   setPlayerBB() {
     if (this.playerColliderBB[0] === void 0) {
@@ -236,6 +271,7 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
   constructor() {
     super(...arguments);
     this.allowPlayerMove = false;
+    this.isTouch = false;
   }
   start() {
     three__WEBPACK_IMPORTED_MODULE_1__.AudioContext.getContext().suspend();
@@ -300,6 +336,7 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     this.touchControlls.style.display = "grid";
     this.touchControlls.style.gridTemplateColumns = "repeat(3, 1fr)";
     this.touchControlls.style.gridTemplateRows = " repeat(3, 1fr)";
+    this.touchControlls.id = "touchControlls";
     const upButton = document.createElement("button");
     upButton.style.gridArea = "1 / 2 / 2 / 3";
     upButton.id = "touchUp";
@@ -317,6 +354,33 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     this.touchControlls.appendChild(leftButton);
     this.touchControlls.appendChild(rightButton);
     this.uiContainer.appendChild(this.touchControlls);
+    this.touchCamera = document.createElement("div");
+    this.touchCamera.style.position = "fixed";
+    this.touchCamera.style.right = "20px";
+    this.touchCamera.style.bottom = "20px";
+    this.touchCamera.style.width = "100px";
+    this.touchCamera.style.height = "100px";
+    this.touchCamera.style.display = "grid";
+    this.touchCamera.style.gridTemplateColumns = "repeat(3, 1fr)";
+    this.touchCamera.style.gridTemplateRows = " repeat(3, 1fr)";
+    this.touchCamera.id = "touchCamera";
+    const upButtonCamera = document.createElement("button");
+    upButtonCamera.style.gridArea = "1 / 2 / 2 / 3";
+    upButtonCamera.id = "cameraUp";
+    const downButtonCamera = document.createElement("button");
+    downButtonCamera.style.gridArea = "3 / 2 / 4 / 3";
+    downButtonCamera.id = "cameraDown";
+    const leftButtonCamera = document.createElement("button");
+    leftButtonCamera.style.gridArea = "2 / 1 / 3 / 2";
+    leftButtonCamera.id = "cameraLeft";
+    const rightButtonCamera = document.createElement("button");
+    rightButtonCamera.style.gridArea = "2 / 3 / 3 / 4";
+    rightButtonCamera.id = "cameraRight";
+    this.touchCamera.appendChild(upButtonCamera);
+    this.touchCamera.appendChild(downButtonCamera);
+    this.touchCamera.appendChild(leftButtonCamera);
+    this.touchCamera.appendChild(rightButtonCamera);
+    this.uiContainer.appendChild(this.touchCamera);
   }
   createStartGameUI() {
     if (this.startGameUI) {
@@ -349,8 +413,8 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     });
     playBtn.ontouchend = () => {
       this.startGameUI.style.display = "none";
-      this.useTouch = true;
       rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.enabled = false;
+      this.isTouch = true;
       this.openFullscreen();
       this.startGame();
     };
