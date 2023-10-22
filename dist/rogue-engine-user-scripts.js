@@ -78,60 +78,39 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     const gameUi = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.getComponent(_GameUI_re__WEBPACK_IMPORTED_MODULE_2__["default"], this.object3d);
     if (gameUi) {
       this.gameUI = gameUi;
+    } else {
+      return;
     }
-    const buttons = this.gameUI.touchControlls.children;
-    buttons[0].addEventListener("touchstart", () => {
-      this.isTouch[0] = true;
-    });
-    buttons[0].addEventListener("touchend", () => {
-      this.isTouch[0] = false;
-    });
-    buttons[1].addEventListener("touchstart", () => {
-      this.isTouch[1] = true;
-    });
-    buttons[1].addEventListener("touchend", () => {
-      this.isTouch[1] = false;
-    });
-    buttons[2].addEventListener("touchstart", () => {
-      this.isTouch[2] = true;
-    });
-    buttons[2].addEventListener("touchend", () => {
-      this.isTouch[2] = false;
-    });
-    buttons[3].addEventListener("touchstart", () => {
-      this.isTouch[3] = true;
-    });
-    buttons[3].addEventListener("touchend", () => {
-      this.isTouch[3] = false;
-    });
+    const buttons = this.gameUI.touchControls.children;
+    this.createListener(buttons[0], true, 0);
+    this.createListener(buttons[1], true, 1);
+    this.createListener(buttons[2], true, 2);
+    this.createListener(buttons[3], true, 3);
     const cameraButtons = this.gameUI.touchCamera.children;
-    cameraButtons[0].addEventListener("touchstart", () => {
-      this.isTouchCamera[0] = true;
-    });
-    cameraButtons[0].addEventListener("touchend", () => {
-      this.isTouchCamera[0] = false;
-    });
-    cameraButtons[1].addEventListener("touchstart", () => {
-      this.isTouchCamera[1] = true;
-    });
-    cameraButtons[1].addEventListener("touchend", () => {
-      this.isTouchCamera[1] = false;
-    });
-    cameraButtons[2].addEventListener("touchstart", () => {
-      this.isTouchCamera[2] = true;
-    });
-    cameraButtons[2].addEventListener("touchend", () => {
-      this.isTouchCamera[2] = false;
-    });
-    cameraButtons[3].addEventListener("touchstart", () => {
-      this.isTouchCamera[3] = true;
-    });
-    cameraButtons[3].addEventListener("touchend", () => {
-      this.isTouchCamera[3] = false;
-    });
+    this.createListener(cameraButtons[0], false, 0);
+    this.createListener(cameraButtons[1], false, 1);
+    this.createListener(cameraButtons[2], false, 2);
+    this.createListener(cameraButtons[3], false, 3);
+  }
+  createListener(element, controlsOrCamera, key) {
+    if (controlsOrCamera) {
+      element.addEventListener("touchstart", () => {
+        this.isTouch[key] = true;
+      });
+      element.addEventListener("touchend", () => {
+        this.isTouch[key] = false;
+      });
+    } else {
+      element.addEventListener("touchstart", () => {
+        this.isTouchCamera[key] = true;
+      });
+      element.addEventListener("touchend", () => {
+        this.isTouchCamera[key] = false;
+      });
+    }
   }
   update() {
-    if (this.gameUI.allowPlayerMove === false) {
+    if (!this.gameUI.allowPlayerMove) {
       return;
     }
     const deltaTime = rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
@@ -176,13 +155,13 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     }
     if (this.gameUI.isTouch) {
       if (this.isTouchCamera[0])
-        this.camera.rotation.x += 2 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+        this.camera.rotation.x += 6 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
       if (this.isTouchCamera[1])
-        this.camera.rotation.x -= 2 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+        this.camera.rotation.x -= 6 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
       if (this.isTouchCamera[2])
-        this.player.rotation.y += 2 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+        this.player.rotation.y += 6 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
       if (this.isTouchCamera[3])
-        this.player.rotation.y -= 2 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
+        this.player.rotation.y -= 6 * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
     } else {
       this.player.rotation.y -= rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementX * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
       this.camera.rotation.x -= rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Input.mouse.movementY * this.sensitivity * rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Runtime.deltaTime;
@@ -279,17 +258,11 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     const myCss = document.createElement("style");
     this.uiContainer.appendChild(myCss);
     this.uiContainer.style.fontFamily = "Arial";
-    this.createLoadingUI();
     this.uiContainer.onclick = () => {
       this.openFullscreen();
     };
+    this.createStartGameUI();
     this.createPhoneUI();
-  }
-  update() {
-    if (this.loadingUI.isConnected && !this.startGameUI) {
-      this.loadingUI.style.display = "none";
-      this.createStartGameUI();
-    }
   }
   openFullscreen() {
     if (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.isDev())
@@ -307,36 +280,17 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
       elem["msRequestFullscreen"]();
     }
   }
-  createLoadingUI() {
-    if (this.loadingUI) {
-      if (this.loadingUI.style.display === "none")
-        this.loadingUI.style.display = "";
-      return this.loadingUI;
-    }
-    this.loadingUI = document.createElement("div");
-    this.loadingUI.style.margin = "auto";
-    this.loadingUI.style.textAlign = "center";
-    this.loadingUI.style.cursor = "pointer";
-    this.loadingUI.style.color = "white";
-    this.loadingUI.style.position = "relative";
-    this.loadingUI.style.width = "fit-content";
-    this.loadingUI.style.top = "50%";
-    this.loadingUI.style.fontSize = "20px";
-    this.loadingUI.textContent = "Loading...";
-    this.uiContainer.appendChild(this.loadingUI);
-    return this.loadingUI;
-  }
   createPhoneUI() {
-    this.touchControlls = document.createElement("div");
-    this.touchControlls.style.position = "fixed";
-    this.touchControlls.style.left = "20px";
-    this.touchControlls.style.bottom = "20px";
-    this.touchControlls.style.width = "100px";
-    this.touchControlls.style.height = "100px";
-    this.touchControlls.style.display = "grid";
-    this.touchControlls.style.gridTemplateColumns = "repeat(3, 1fr)";
-    this.touchControlls.style.gridTemplateRows = " repeat(3, 1fr)";
-    this.touchControlls.id = "touchControlls";
+    this.touchControls = document.createElement("div");
+    this.touchControls.style.position = "fixed";
+    this.touchControls.style.left = "20px";
+    this.touchControls.style.bottom = "20px";
+    this.touchControls.style.width = "100px";
+    this.touchControls.style.height = "100px";
+    this.touchControls.style.display = "none";
+    this.touchControls.style.gridTemplateColumns = "repeat(3, 1fr)";
+    this.touchControls.style.gridTemplateRows = " repeat(3, 1fr)";
+    this.touchControls.id = "touchControlls";
     const upButton = document.createElement("button");
     upButton.style.gridArea = "1 / 2 / 2 / 3";
     upButton.id = "touchUp";
@@ -349,18 +303,18 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     const rightButton = document.createElement("button");
     rightButton.style.gridArea = "2 / 3 / 3 / 4";
     rightButton.id = "touchRight";
-    this.touchControlls.appendChild(upButton);
-    this.touchControlls.appendChild(downButton);
-    this.touchControlls.appendChild(leftButton);
-    this.touchControlls.appendChild(rightButton);
-    this.uiContainer.appendChild(this.touchControlls);
+    this.touchControls.appendChild(upButton);
+    this.touchControls.appendChild(downButton);
+    this.touchControls.appendChild(leftButton);
+    this.touchControls.appendChild(rightButton);
+    this.uiContainer.appendChild(this.touchControls);
     this.touchCamera = document.createElement("div");
     this.touchCamera.style.position = "fixed";
     this.touchCamera.style.right = "20px";
     this.touchCamera.style.bottom = "20px";
     this.touchCamera.style.width = "100px";
     this.touchCamera.style.height = "100px";
-    this.touchCamera.style.display = "grid";
+    this.touchCamera.style.display = "none";
     this.touchCamera.style.gridTemplateColumns = "repeat(3, 1fr)";
     this.touchCamera.style.gridTemplateRows = " repeat(3, 1fr)";
     this.touchCamera.id = "touchCamera";
@@ -386,7 +340,7 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     if (this.startGameUI) {
       if (this.startGameUI.style.display === "none")
         this.startGameUI.style.display = "flex";
-      return this.startGameUI;
+      return;
     }
     this.startGameUI = document.createElement("div");
     this.startGameUI.style.margin = "auto";
@@ -422,10 +376,33 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
       this.startGameUI.style.display = "none";
       this.startGame();
     };
+    const wrapper = document.createElement("div");
+    const touchToggle = document.createElement("input");
+    touchToggle.setAttribute("type", "checkbox");
+    touchToggle.id = "touchToggle";
+    const toggleTouch = /* @__PURE__ */ __name(() => {
+      if (this.touchControls.style.display === "none") {
+        this.touchControls.style.display = "grid";
+      } else {
+        this.touchControls.style.display = "none";
+      }
+      if (this.touchCamera.style.display === "none") {
+        this.touchCamera.style.display = "grid";
+      } else {
+        this.touchCamera.style.display = "none";
+      }
+    }, "toggleTouch");
+    touchToggle.onchange = toggleTouch;
+    touchToggle.ontouchstart = toggleTouch;
+    const label = document.createElement("label");
+    label.setAttribute("for", "touchToggle");
+    label.innerHTML = "Touch";
+    wrapper.appendChild(touchToggle);
+    wrapper.appendChild(label);
     this.startGameUI.appendChild(gameTitle);
     this.startGameUI.appendChild(playBtn);
+    this.startGameUI.appendChild(wrapper);
     this.uiContainer.appendChild(this.startGameUI);
-    return this.startGameUI;
   }
   startGame() {
     this.allowPlayerMove = true;
@@ -564,7 +541,7 @@ class VideoPlayer extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     video.classList.add("videoPlayer");
     video.loop = true;
     video.volume = this.volume;
-    video.playsInline = true;
+    video.setAttribute("type", "video/mp4");
     document.body.appendChild(video);
     const texture = new three__WEBPACK_IMPORTED_MODULE_1__.VideoTexture(video);
     texture.needsUpdate;

@@ -3,10 +3,9 @@ import { AudioContext } from 'three';
 
 export default class GameUI extends RE.Component {
   private uiContainer: HTMLElement;
-  private loadingUI: HTMLElement;
   private startGameUI: HTMLElement;
 
-  public touchControlls: HTMLElement
+  public touchControls: HTMLElement
   public touchCamera: HTMLElement
   public allowPlayerMove: boolean = false
   public isTouch = false
@@ -21,22 +20,11 @@ export default class GameUI extends RE.Component {
     this.uiContainer.appendChild(myCss);
     this.uiContainer.style.fontFamily = "Arial";
 
-    this.createLoadingUI();
-
     this.uiContainer.onclick = () => {
       this.openFullscreen();
     }
+    this.createStartGameUI();
     this.createPhoneUI()
-  }
-
-  update() {
-    if (
-        this.loadingUI.isConnected &&
-        !this.startGameUI
-    ) {
-      this.loadingUI.style.display = "none";
-      this.createStartGameUI();
-    }
   }
 
   private openFullscreen() {
@@ -57,42 +45,18 @@ export default class GameUI extends RE.Component {
     }
   }
 
-  private createLoadingUI() {
-    if (this.loadingUI) {
-      if (this.loadingUI.style.display === "none")
-        this.loadingUI.style.display = "";
-
-      return this.loadingUI
-    }
-
-    this.loadingUI = document.createElement("div");
-    this.loadingUI.style.margin = "auto";
-    this.loadingUI.style.textAlign = "center";
-    this.loadingUI.style.cursor = "pointer";
-    this.loadingUI.style.color = "white";
-    this.loadingUI.style.position = "relative";
-    this.loadingUI.style.width = "fit-content";
-    this.loadingUI.style.top = "50%";
-    this.loadingUI.style.fontSize = "20px";
-    this.loadingUI.textContent = "Loading...";
-
-    this.uiContainer.appendChild(this.loadingUI);
-
-    return this.loadingUI;
-  }
-
   private createPhoneUI() {
     //Movement
-    this.touchControlls = document.createElement("div");
-    this.touchControlls.style.position = 'fixed'
-    this.touchControlls.style.left = "20px"
-    this.touchControlls.style.bottom = "20px"
-    this.touchControlls.style.width = "100px"
-    this.touchControlls.style.height = "100px"
-    this.touchControlls.style.display = "grid"
-    this.touchControlls.style.gridTemplateColumns = "repeat(3, 1fr)"
-    this.touchControlls.style.gridTemplateRows = " repeat(3, 1fr)"
-    this.touchControlls.id = "touchControlls"
+    this.touchControls = document.createElement("div");
+    this.touchControls.style.position = 'fixed'
+    this.touchControls.style.left = "20px"
+    this.touchControls.style.bottom = "20px"
+    this.touchControls.style.width = "100px"
+    this.touchControls.style.height = "100px"
+    this.touchControls.style.display = "none"
+    this.touchControls.style.gridTemplateColumns = "repeat(3, 1fr)"
+    this.touchControls.style.gridTemplateRows = " repeat(3, 1fr)"
+    this.touchControls.id = "touchControlls"
 
     const upButton = document.createElement('button')
     upButton.style.gridArea = "1 / 2 / 2 / 3"
@@ -110,12 +74,12 @@ export default class GameUI extends RE.Component {
     rightButton.style.gridArea = "2 / 3 / 3 / 4"
     rightButton.id = "touchRight"
 
-    this.touchControlls.appendChild(upButton)
-    this.touchControlls.appendChild(downButton)
-    this.touchControlls.appendChild(leftButton)
-    this.touchControlls.appendChild(rightButton)
+    this.touchControls.appendChild(upButton)
+    this.touchControls.appendChild(downButton)
+    this.touchControls.appendChild(leftButton)
+    this.touchControls.appendChild(rightButton)
 
-    this.uiContainer.appendChild(this.touchControlls)
+    this.uiContainer.appendChild(this.touchControls)
 
     //Camera
     this.touchCamera = document.createElement("div");
@@ -124,7 +88,7 @@ export default class GameUI extends RE.Component {
     this.touchCamera.style.bottom = "20px"
     this.touchCamera.style.width = "100px"
     this.touchCamera.style.height = "100px"
-    this.touchCamera.style.display = "grid"
+    this.touchCamera.style.display = "none"
     this.touchCamera.style.gridTemplateColumns = "repeat(3, 1fr)"
     this.touchCamera.style.gridTemplateRows = " repeat(3, 1fr)"
     this.touchCamera.id = "touchCamera"
@@ -153,12 +117,12 @@ export default class GameUI extends RE.Component {
     this.uiContainer.appendChild(this.touchCamera)
   }
 
-  private createStartGameUI() {
+  private createStartGameUI(): void {
     if (this.startGameUI) {
       if (this.startGameUI.style.display === "none")
         this.startGameUI.style.display = "flex";
 
-      return this.startGameUI
+      return
     }
 
     this.startGameUI = document.createElement("div");
@@ -202,12 +166,41 @@ export default class GameUI extends RE.Component {
       this.startGame();
     };
 
+    const wrapper = document.createElement('div')
+
+    const touchToggle = document.createElement('input')
+    touchToggle.setAttribute('type', 'checkbox')
+    touchToggle.id = "touchToggle"
+
+    const toggleTouch = (): void => {
+      if (this.touchControls.style.display === 'none') {
+        this.touchControls.style.display = "grid"
+      } else {
+        this.touchControls.style.display = "none"
+      }
+
+      if (this.touchCamera.style.display === 'none') {
+        this.touchCamera.style.display = "grid"
+      } else {
+        this.touchCamera.style.display = "none"
+      }
+    }
+
+    touchToggle.onchange = toggleTouch
+    touchToggle.ontouchstart = toggleTouch
+
+    const label = document.createElement('label')
+    label.setAttribute('for', 'touchToggle')
+    label.innerHTML = "Touch"
+
+    wrapper.appendChild(touchToggle)
+    wrapper.appendChild(label)
+
     this.startGameUI.appendChild(gameTitle);
     this.startGameUI.appendChild(playBtn);
+    this.startGameUI.appendChild(wrapper)
 
     this.uiContainer.appendChild(this.startGameUI);
-
-    return this.startGameUI;
   }
 
   private startGame() {

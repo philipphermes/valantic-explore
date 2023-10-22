@@ -11,7 +11,7 @@ export default class VideoPlayer extends RE.Component {
     video.classList.add('videoPlayer')
     video.loop = true
     video.volume = this.volume
-    video.playsInline = true
+    video.setAttribute('type', "video/mp4")
     document.body.appendChild(video)
 
     const texture = new THREE.VideoTexture(video);

@@ -62,90 +62,49 @@ export default class FPController extends RE.Component {
 
         if (gameUi) {
             this.gameUI = gameUi
+        } else {
+            return
         }
 
         //Touch Movement
-        const buttons = this.gameUI.touchControlls.children
+        const buttons: HTMLCollection = this.gameUI.touchControls.children
 
-        //Up
-        buttons[0].addEventListener('touchstart', () => {
-            this.isTouch[0] = true
-        })
-
-        buttons[0].addEventListener('touchend', () => {
-            this.isTouch[0] = false
-        })
-
-        //Down
-        buttons[1].addEventListener('touchstart', () => {
-            this.isTouch[1] = true
-        })
-
-        buttons[1].addEventListener('touchend', () => {
-            this.isTouch[1] = false
-        })
-
-        //Left
-        buttons[2].addEventListener('touchstart', () => {
-            this.isTouch[2] = true
-        })
-
-        buttons[2].addEventListener('touchend', () => {
-            this.isTouch[2] = false
-        })
-
-        //Right
-        buttons[3].addEventListener('touchstart', () => {
-            this.isTouch[3] = true
-        })
-
-        buttons[3].addEventListener('touchend', () => {
-            this.isTouch[3] = false
-        })
+        this.createListener(buttons[0], true, 0)
+        this.createListener(buttons[1], true, 1)
+        this.createListener(buttons[2], true, 2)
+        this.createListener(buttons[3], true, 3)
 
         //Touch Camera
         const cameraButtons = this.gameUI.touchCamera.children
 
-        //Up
-        cameraButtons[0].addEventListener('touchstart', () => {
-            this.isTouchCamera[0] = true
-        })
+        this.createListener(cameraButtons[0], false, 0)
+        this.createListener(cameraButtons[1], false, 1)
+        this.createListener(cameraButtons[2], false, 2)
+        this.createListener(cameraButtons[3], false, 3)
+    }
 
-        cameraButtons[0].addEventListener('touchend', () => {
-            this.isTouchCamera[0] = false
-        })
+    private createListener(element: Element, controlsOrCamera: boolean /* true controlls */, key: number) {
+        if (controlsOrCamera) {
+            element.addEventListener('touchstart', () => {
+                this.isTouch[key] = true
+            })
 
-        //Down
-        cameraButtons[1].addEventListener('touchstart', () => {
-            this.isTouchCamera[1] = true
-        })
+            element.addEventListener('touchend', () => {
+                this.isTouch[key] = false
+            })
+        } else {
+            element.addEventListener('touchstart', () => {
+                this.isTouchCamera[key] = true
+            })
 
-        cameraButtons[1].addEventListener('touchend', () => {
-            this.isTouchCamera[1] = false
-        })
-
-        //Left
-        cameraButtons[2].addEventListener('touchstart', () => {
-            this.isTouchCamera[2] = true
-        })
-
-        cameraButtons[2].addEventListener('touchend', () => {
-            this.isTouchCamera[2] = false
-        })
-
-        //Right
-        cameraButtons[3].addEventListener('touchstart', () => {
-            this.isTouchCamera[3] = true
-        })
-
-        cameraButtons[3].addEventListener('touchend', () => {
-            this.isTouchCamera[3] = false
-        })
+            element.addEventListener('touchend', () => {
+                this.isTouchCamera[key] = false
+            })
+        }
     }
 
     update() {
-
-        if (this.gameUI.allowPlayerMove === false) {
+        if (!this.gameUI.allowPlayerMove) {
             return
         }
 
@@ -211,16 +170,16 @@ export default class FPController extends RE.Component {
         if (this.gameUI.isTouch) {
            
             if (this.isTouchCamera[0])
-                this.camera.rotation.x += 2 * this.sensitivity * RE.Runtime.deltaTime
+                this.camera.rotation.x += 6 * this.sensitivity * RE.Runtime.deltaTime
 
             if (this.isTouchCamera[1])
-                this.camera.rotation.x -= 2 * this.sensitivity * RE.Runtime.deltaTime
+                this.camera.rotation.x -= 6 * this.sensitivity * RE.Runtime.deltaTime
             
             if (this.isTouchCamera[2])
-                this.player.rotation.y += 2 * this.sensitivity * RE.Runtime.deltaTime
+                this.player.rotation.y += 6 * this.sensitivity * RE.Runtime.deltaTime
 
             if (this.isTouchCamera[3])
-                this.player.rotation.y -= 2 * this.sensitivity * RE.Runtime.deltaTime
+                this.player.rotation.y -= 6 * this.sensitivity * RE.Runtime.deltaTime
         } else {
             this.player.rotation.y -= RE.Input.mouse.movementX * this.sensitivity * RE.Runtime.deltaTime
             this.camera.rotation.x -= RE.Input.mouse.movementY * this.sensitivity * RE.Runtime.deltaTime
