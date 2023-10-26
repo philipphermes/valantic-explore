@@ -81,16 +81,24 @@ class FPController extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     } else {
       return;
     }
-    const buttons = this.gameUI.touchControls.children;
-    this.createListener(buttons[0], true, 0);
-    this.createListener(buttons[1], true, 1);
-    this.createListener(buttons[2], true, 2);
-    this.createListener(buttons[3], true, 3);
-    const cameraButtons = this.gameUI.touchCamera.children;
-    this.createListener(cameraButtons[0], false, 0);
-    this.createListener(cameraButtons[1], false, 1);
-    this.createListener(cameraButtons[2], false, 2);
-    this.createListener(cameraButtons[3], false, 3);
+    this.createTouchControlls();
+  }
+  async createTouchControlls() {
+    try {
+      const buttons = this.gameUI.touchControls.children;
+      this.createListener(buttons[0], true, 0);
+      this.createListener(buttons[1], true, 1);
+      this.createListener(buttons[2], true, 2);
+      this.createListener(buttons[3], true, 3);
+      const cameraButtons = this.gameUI.touchCamera.children;
+      this.createListener(cameraButtons[0], false, 0);
+      this.createListener(cameraButtons[1], false, 1);
+      this.createListener(cameraButtons[2], false, 2);
+      this.createListener(cameraButtons[3], false, 3);
+    } catch (e) {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      this.createTouchControlls();
+    }
   }
   createListener(element, controlsOrCamera, key) {
     if (controlsOrCamera) {
@@ -258,11 +266,11 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     const myCss = document.createElement("style");
     this.uiContainer.appendChild(myCss);
     this.uiContainer.style.fontFamily = "Arial";
+    this.createStartGameUI();
+    this.createPhoneUI();
     this.uiContainer.onclick = () => {
       this.openFullscreen();
     };
-    this.createStartGameUI();
-    this.createPhoneUI();
   }
   openFullscreen() {
     if (rogue_engine__WEBPACK_IMPORTED_MODULE_0__.isDev())
@@ -294,15 +302,23 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     const upButton = document.createElement("button");
     upButton.style.gridArea = "1 / 2 / 2 / 3";
     upButton.id = "touchUp";
+    upButton.style.borderRadius = "100%";
+    upButton.style.border = "none";
     const downButton = document.createElement("button");
     downButton.style.gridArea = "3 / 2 / 4 / 3";
     downButton.id = "touchDown";
+    downButton.style.borderRadius = "100%";
+    downButton.style.border = "none";
     const leftButton = document.createElement("button");
     leftButton.style.gridArea = "2 / 1 / 3 / 2";
     leftButton.id = "touchLeft";
+    leftButton.style.borderRadius = "100%";
+    leftButton.style.border = "none";
     const rightButton = document.createElement("button");
     rightButton.style.gridArea = "2 / 3 / 3 / 4";
     rightButton.id = "touchRight";
+    rightButton.style.borderRadius = "100%";
+    rightButton.style.border = "none";
     this.touchControls.appendChild(upButton);
     this.touchControls.appendChild(downButton);
     this.touchControls.appendChild(leftButton);
@@ -321,15 +337,23 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     const upButtonCamera = document.createElement("button");
     upButtonCamera.style.gridArea = "1 / 2 / 2 / 3";
     upButtonCamera.id = "cameraUp";
+    upButtonCamera.style.borderRadius = "100%";
+    upButtonCamera.style.border = "none";
     const downButtonCamera = document.createElement("button");
     downButtonCamera.style.gridArea = "3 / 2 / 4 / 3";
     downButtonCamera.id = "cameraDown";
+    downButtonCamera.style.borderRadius = "100%";
+    downButtonCamera.style.border = "none";
     const leftButtonCamera = document.createElement("button");
     leftButtonCamera.style.gridArea = "2 / 1 / 3 / 2";
     leftButtonCamera.id = "cameraLeft";
+    leftButtonCamera.style.borderRadius = "100%";
+    leftButtonCamera.style.border = "none";
     const rightButtonCamera = document.createElement("button");
     rightButtonCamera.style.gridArea = "2 / 3 / 3 / 4";
     rightButtonCamera.id = "cameraRight";
+    rightButtonCamera.style.borderRadius = "100%";
+    rightButtonCamera.style.border = "none";
     this.touchCamera.appendChild(upButtonCamera);
     this.touchCamera.appendChild(downButtonCamera);
     this.touchCamera.appendChild(leftButtonCamera);
@@ -351,6 +375,7 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     this.startGameUI.style.display = "flex";
     this.startGameUI.style.flexDirection = "column";
     this.startGameUI.style.justifyContent = "center";
+    this.startGameUI.style.alignItems = "center";
     const gameTitle = document.createElement("h1");
     gameTitle.textContent = "Valantic City";
     gameTitle.style.color = "#FF4B4B";
@@ -376,15 +401,22 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
       this.startGameUI.style.display = "none";
       this.startGame();
     };
-    const wrapper = document.createElement("div");
-    const touchToggle = document.createElement("input");
-    touchToggle.setAttribute("type", "checkbox");
+    const touchToggle = document.createElement("button");
     touchToggle.id = "touchToggle";
+    touchToggle.style.width = "min-content";
+    touchToggle.style.whiteSpace = "nowrap";
+    touchToggle.style.padding = "10px";
+    touchToggle.style.border = "none";
+    touchToggle.style.borderRadius = "25px";
+    touchToggle.style.cursor = "pointer";
+    touchToggle.innerHTML = "Touch Controlls";
     const toggleTouch = /* @__PURE__ */ __name(() => {
       if (this.touchControls.style.display === "none") {
         this.touchControls.style.display = "grid";
+        touchToggle.innerHTML = "Disable Touch Controlls";
       } else {
         this.touchControls.style.display = "none";
+        touchToggle.innerHTML = "Touch Controlls";
       }
       if (this.touchCamera.style.display === "none") {
         this.touchCamera.style.display = "grid";
@@ -394,14 +426,10 @@ class GameUI extends rogue_engine__WEBPACK_IMPORTED_MODULE_0__.Component {
     }, "toggleTouch");
     touchToggle.onchange = toggleTouch;
     touchToggle.ontouchstart = toggleTouch;
-    const label = document.createElement("label");
-    label.setAttribute("for", "touchToggle");
-    label.innerHTML = "Touch";
-    wrapper.appendChild(touchToggle);
-    wrapper.appendChild(label);
+    touchToggle.onclick = toggleTouch;
     this.startGameUI.appendChild(gameTitle);
     this.startGameUI.appendChild(playBtn);
-    this.startGameUI.appendChild(wrapper);
+    this.startGameUI.appendChild(touchToggle);
     this.uiContainer.appendChild(this.startGameUI);
   }
   startGame() {

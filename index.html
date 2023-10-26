@@ -55,8 +55,6 @@
       const res = await fetch("/getScenePlayerConfig");
       const {appConfig, sceneJson, assetPaths} = await res.json();
 
-      console.log({appConfig, sceneJson, assetPaths});
-
       RE.AssetManager.setAssetPaths(assetPaths || {});
       RE.AssetManager.loadAssetConfigs(sceneJson.assetConfigs);
 

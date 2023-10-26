@@ -20,11 +20,12 @@ export default class GameUI extends RE.Component {
     this.uiContainer.appendChild(myCss);
     this.uiContainer.style.fontFamily = "Arial";
 
+    this.createStartGameUI();
+    this.createPhoneUI()
+
     this.uiContainer.onclick = () => {
       this.openFullscreen();
     }
-    this.createStartGameUI();
-    this.createPhoneUI()
   }
 
   private openFullscreen() {
@@ -61,18 +62,26 @@ export default class GameUI extends RE.Component {
     const upButton = document.createElement('button')
     upButton.style.gridArea = "1 / 2 / 2 / 3"
     upButton.id = "touchUp"
+    upButton.style.borderRadius = "100%"
+    upButton.style.border = "none"
 
     const downButton = document.createElement('button')
     downButton.style.gridArea = "3 / 2 / 4 / 3"
     downButton.id = "touchDown"
+    downButton.style.borderRadius = "100%"
+    downButton.style.border = "none"
 
     const leftButton = document.createElement('button')
     leftButton.style.gridArea = "2 / 1 / 3 / 2"
     leftButton.id = "touchLeft"
+    leftButton.style.borderRadius = "100%"
+    leftButton.style.border = "none"
 
     const rightButton = document.createElement('button')
     rightButton.style.gridArea = "2 / 3 / 3 / 4"
     rightButton.id = "touchRight"
+    rightButton.style.borderRadius = "100%"
+    rightButton.style.border = "none"
 
     this.touchControls.appendChild(upButton)
     this.touchControls.appendChild(downButton)
@@ -96,18 +105,26 @@ export default class GameUI extends RE.Component {
     const upButtonCamera = document.createElement('button')
     upButtonCamera.style.gridArea = "1 / 2 / 2 / 3"
     upButtonCamera.id = "cameraUp"
+    upButtonCamera.style.borderRadius = "100%"
+    upButtonCamera.style.border = "none"
 
     const downButtonCamera = document.createElement('button')
     downButtonCamera.style.gridArea = "3 / 2 / 4 / 3"
     downButtonCamera.id = "cameraDown"
+    downButtonCamera.style.borderRadius = "100%"
+    downButtonCamera.style.border = "none"
 
     const leftButtonCamera = document.createElement('button')
     leftButtonCamera.style.gridArea = "2 / 1 / 3 / 2"
     leftButtonCamera.id = "cameraLeft"
+    leftButtonCamera.style.borderRadius = "100%"
+    leftButtonCamera.style.border = "none"
 
     const rightButtonCamera = document.createElement('button')
     rightButtonCamera.style.gridArea = "2 / 3 / 3 / 4"
     rightButtonCamera.id = "cameraRight"
+    rightButtonCamera.style.borderRadius = "100%"
+    rightButtonCamera.style.border = "none"
 
     this.touchCamera.appendChild(upButtonCamera)
     this.touchCamera.appendChild(downButtonCamera)
@@ -134,6 +151,7 @@ export default class GameUI extends RE.Component {
     this.startGameUI.style.display = "flex";
     this.startGameUI.style.flexDirection = "column";
     this.startGameUI.style.justifyContent = "center";
+    this.startGameUI.style.alignItems = "center";
 
     const gameTitle = document.createElement("h1");
     gameTitle.textContent = "Valantic City";
@@ -166,17 +184,23 @@ export default class GameUI extends RE.Component {
       this.startGame();
     };
 
-    const wrapper = document.createElement('div')
-
-    const touchToggle = document.createElement('input')
-    touchToggle.setAttribute('type', 'checkbox')
+    const touchToggle = document.createElement('button')
     touchToggle.id = "touchToggle"
+    touchToggle.style.width = "min-content"
+    touchToggle.style.whiteSpace = "nowrap"
+    touchToggle.style.padding = "10px"
+    touchToggle.style.border = "none"
+    touchToggle.style.borderRadius = "25px"
+    touchToggle.style.cursor = "pointer"
+    touchToggle.innerHTML = "Touch Controlls"
 
     const toggleTouch = (): void => {
       if (this.touchControls.style.display === 'none') {
         this.touchControls.style.display = "grid"
+        touchToggle.innerHTML = "Disable Touch Controlls"
       } else {
         this.touchControls.style.display = "none"
+        touchToggle.innerHTML = "Touch Controlls"
       }
 
       if (this.touchCamera.style.display === 'none') {
@@ -188,17 +212,13 @@ export default class GameUI extends RE.Component {
 
     touchToggle.onchange = toggleTouch
     touchToggle.ontouchstart = toggleTouch
+    touchToggle.onclick = toggleTouch
 
-    const label = document.createElement('label')
-    label.setAttribute('for', 'touchToggle')
-    label.innerHTML = "Touch"
 
-    wrapper.appendChild(touchToggle)
-    wrapper.appendChild(label)
 
     this.startGameUI.appendChild(gameTitle);
     this.startGameUI.appendChild(playBtn);
-    this.startGameUI.appendChild(wrapper)
+    this.startGameUI.appendChild(touchToggle)
 
     this.uiContainer.appendChild(this.startGameUI);
   }

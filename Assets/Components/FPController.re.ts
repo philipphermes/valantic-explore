@@ -66,21 +66,30 @@ export default class FPController extends RE.Component {
             return
         }
 
-        //Touch Movement
-        const buttons: HTMLCollection = this.gameUI.touchControls.children
+        //Touch Movement & Camera
+        this.createTouchControlls()
+    }
 
-        this.createListener(buttons[0], true, 0)
-        this.createListener(buttons[1], true, 1)
-        this.createListener(buttons[2], true, 2)
-        this.createListener(buttons[3], true, 3)
+    //Retry untill element is loaded, didnt work with event listener
+    private async createTouchControlls() {
+        try {
+            const buttons = this.gameUI.touchControls.children
+        
+            this.createListener(buttons[0], true, 0)
+            this.createListener(buttons[1], true, 1)
+            this.createListener(buttons[2], true, 2)
+            this.createListener(buttons[3], true, 3)
 
-        //Touch Camera
-        const cameraButtons = this.gameUI.touchCamera.children
+            const cameraButtons = this.gameUI.touchCamera.children
 
-        this.createListener(cameraButtons[0], false, 0)
-        this.createListener(cameraButtons[1], false, 1)
-        this.createListener(cameraButtons[2], false, 2)
-        this.createListener(cameraButtons[3], false, 3)
+            this.createListener(cameraButtons[0], false, 0)
+            this.createListener(cameraButtons[1], false, 1)
+            this.createListener(cameraButtons[2], false, 2)
+            this.createListener(cameraButtons[3], false, 3)
+        } catch (e) {            
+            await new Promise(resolve => setTimeout(resolve, 10));
+            this.createTouchControlls()
+        }
     }
 
     private createListener(element: Element, controlsOrCamera: boolean /* true controlls */, key: number) {
